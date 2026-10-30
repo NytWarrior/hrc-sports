@@ -1,39 +1,16 @@
+import mongoose from 'mongoose';
 
-import mongoose from "mongoose";
-
-const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  throw new Error("Please define MONGODB_URI in your environment variables");
-}
-
-const cached = globalThis as typeof globalThis & {
-  mongoose?: {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
-  };
-};
-
-const mongooseCache = cached.mongoose ??= {
-  conn: null,
-  promise: null,
-};
+type MongooseCache = { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null };
+const globalForMongoose = globalThis as typeof globalThis & { mongooseCache?: MongooseCache };
+const cached = globalForMongoose.mongooseCache ?? { conn: null, promise: null };
+globalForMongoose.mongooseCache = cached;
 
 export default async function connectDB() {
-  if (mongooseCache.conn) return mongooseCache.conn;
-
-  if (!mongooseCache.promise) {
-    mongooseCache.promise = mongoose.connect(MONGODB_URI!, {
-      bufferCommands: false,
-    });
-  }
-
-  try {
-    mongooseCache.conn = await mongooseCache.promise;
-  } catch (error) {
-    mongooseCache.promise = null;
-    throw error;
-  }
-
-  return mongooseCache.conn;
+  const uri = process.env.MONGODB_URI;
+  if (!uri) throw new Error('MONGODB_URI is missing. Add it to .env.local or Vercel Environment Variables.');
+  if (cached.conn) return cached.conn;
+  if (!cached.promise) cached.promise = mongoose.connect(uri, { bufferCommands: false });
+  try { cached.conn = await cached.promise; }
+  catch (error) { cached.promise = null; throw error; }
+  return cached.conn;
 }
