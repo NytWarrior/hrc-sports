@@ -86,3 +86,14 @@ Admin pricing is configured per hour for Morning (5 AM–11 AM), Afternoon (11 A
 ### Customer slot selection and logo
 - Customers can tap multiple individual one-hour slots; each selected slot is priced using the admin's saved category rate. Slots can be non-contiguous.
 - Admins can upload a PNG, JPG, or WEBP logo from the Pricing categories section. Save prices & logo to publish it on the public site.
+
+
+## WhatsApp booking and payment confirmation flow
+
+1. In `/admin`, enter the HRC Sports WhatsApp number with country code and digits only (India example: `91` + the 10-digit mobile number), then click **Save settings**.
+2. A customer selects one or more available hourly slots and submits their details. The app creates a **pending request** and opens WhatsApp with a pre-filled message containing the reference, customer details, date, selected slots, and estimated total. The customer still needs to press Send in WhatsApp.
+3. Reply to the customer manually with your payment QR code and payment instructions.
+4. After you verify payment, open `/admin`, refresh the dashboard if needed, and click **Confirm & block slots** for that request. Only confirmed bookings are removed from public availability; pending requests do not block slots.
+5. If payment is not received or you decline the request, use **Cancel**.
+
+Important: WhatsApp is opened using a `wa.me` click-to-chat link. This does not automatically send messages, deliver QR images, or verify payments. The customer must send the pre-filled message, and the admin must manually send the QR and confirm payment.
